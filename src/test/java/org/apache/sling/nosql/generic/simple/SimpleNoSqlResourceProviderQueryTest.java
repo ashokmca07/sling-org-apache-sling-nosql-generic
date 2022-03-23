@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceProvider;
+import org.apache.sling.spi.resource.provider.ResourceProvider;
 import org.apache.sling.nosql.generic.simple.provider.SimpleNoSqlResourceProviderFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
@@ -37,21 +37,29 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /**
  * Test basic ResourceResolver and ValueMap with different data types.
  */
 public class SimpleNoSqlResourceProviderQueryTest {
-    
+
     @Rule
     public SlingContext context = new SlingContext(ResourceResolverType.JCR_MOCK);
+
+    private ResourceProvider<?> resourceProvider;
     
     private Resource testRoot;
 
     @Before
     public void setUp() throws Exception {
+        /*resourceProvider = Mockito.mock(ResourceProvider.class);
+        context.registerService(ResourceProvider.class, resourceProvider,
+                ResourceProvider.PROPERTY_ROOT, "/");*/
+
         context.registerInjectActivateService(new SimpleNoSqlResourceProviderFactory(), ImmutableMap.<String, Object>builder()
-                .put(ResourceProvider.ROOTS, "/nosql-simple")
+                .put(ResourceProvider.PROPERTY_ROOT, "/nosql-simple")
                 .build());
         
         // prepare some test data using Sling CRUD API

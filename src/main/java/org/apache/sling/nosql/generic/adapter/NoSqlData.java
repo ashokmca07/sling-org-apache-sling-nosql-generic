@@ -18,9 +18,9 @@
  */
 package org.apache.sling.nosql.generic.adapter;
 
-import java.util.Map;
+import org.osgi.annotation.versioning.ProviderType;
 
-import aQute.bnd.annotation.ProviderType;
+import java.util.Map;
 
 /**
  * Wrapper for properties of a NoSQL document for a given path.

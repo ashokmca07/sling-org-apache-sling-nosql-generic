@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 import org.apache.sling.api.resource.LoginException;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Adapter for NoSQL databases to be hooked into the Generic NoSQL resource provider.

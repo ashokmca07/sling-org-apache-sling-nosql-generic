@@ -18,23 +18,21 @@
  */
 package org.apache.sling.nosql.generic.resource;
 
-import java.util.Map;
-
 import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.ResourceProvider;
-import org.apache.sling.api.resource.ResourceProviderFactory;
 import org.apache.sling.nosql.generic.adapter.NoSqlAdapter;
 import org.apache.sling.nosql.generic.resource.impl.NoSqlResourceProvider;
+import org.apache.sling.spi.resource.provider.ResourceProvider;
+import org.osgi.annotation.versioning.ConsumerType;
 import org.osgi.service.event.EventAdmin;
 
-import aQute.bnd.annotation.ConsumerType;
+import java.util.Map;
 
 /**
  * Abstract implementation of resource provider factory.
  * NoSQL resource providers implement this, add their own configuration support and and provide the matching NoSQL adapter implementation.
  */
 @ConsumerType
-public abstract class AbstractNoSqlResourceProviderFactory implements ResourceProviderFactory {
+public abstract class AbstractNoSqlResourceProviderFactory extends ResourceProvider {
 
     public final ResourceProvider getResourceProvider(Map<String, Object> authenticationInfo) throws LoginException {
         NoSqlAdapter adapter = getNoSqlAdapter();

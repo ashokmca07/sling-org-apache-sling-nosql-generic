@@ -33,15 +33,17 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.sling.api.SlingConstants;
-import org.apache.sling.api.resource.ModifyingResourceProvider;
 import org.apache.sling.api.resource.PersistenceException;
-import org.apache.sling.api.resource.QueriableResourceProvider;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceProvider;
+import org.apache.sling.spi.resource.provider.ResolveContext;
+import org.apache.sling.spi.resource.provider.ResourceContext;
+import org.apache.sling.spi.resource.provider.ResourceProvider;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.nosql.generic.adapter.NoSqlAdapter;
 import org.apache.sling.nosql.generic.adapter.NoSqlData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
@@ -49,7 +51,7 @@ import org.osgi.service.event.EventAdmin;
  * Generic implementation of a NoSQL resource provider.
  * The mapping to the NoSQL database implementation details is done via the provided {@link NoSqlAdapter}.
  */
-public class NoSqlResourceProvider implements ResourceProvider, ModifyingResourceProvider, QueriableResourceProvider {
+public class NoSqlResourceProvider extends ResourceProvider {
     
     private static final String ROOT_PATH = "/";
     
@@ -62,10 +64,8 @@ public class NoSqlResourceProvider implements ResourceProvider, ModifyingResourc
         this.adapter = new ValueMapConvertingNoSqlAdapter(adapter);
         this.eventAdmin = eventAdmin;
     }
-
     
     // ### READONLY ACCESS ###
-    
     public Resource getResource(ResourceResolver resourceResolver, String path) {
         if (!adapter.validPath(path)) {
             return null;
@@ -240,7 +240,6 @@ public class NoSqlResourceProvider implements ResourceProvider, ModifyingResourc
 
     
     // ### QUERY ACCESS ###
-    
     public Iterator<Resource> findResources(final ResourceResolver resolver, final String query, final String language) {
         final Iterator<NoSqlData> result = adapter.query(query, language);
         if (result == null) {
@@ -276,5 +275,39 @@ public class NoSqlResourceProvider implements ResourceProvider, ModifyingResourc
             }
         };
     }
-    
+
+    @Override
+    public @Nullable Resource getResource(@NotNull ResolveContext resolveContext, @NotNull String path, @NotNull ResourceContext resourceContext, @Nullable Resource resource) {
+        ResourceResolver resourceResolver = resolveContext.getResourceResolver();
+
+        if (!adapter.validPath(path)) {
+            return null;
+        }
+        if (!this.deletedResources.isEmpty()) {
+            for (String deletedPath : deletedResources) {
+                Pattern deletedPathPattern = PathUtil.getSameOrDescendantPathPattern(deletedPath);
+                if (deletedPathPattern.matcher(path).matches()) {
+                    return null;
+                }
+            }
+        }
+        if (this.changedResources.containsKey(path)) {
+            return new NoSqlResource(this.changedResources.get(path), resourceResolver, this);
+        }
+        NoSqlData data = adapter.get(path);
+        if (data != null) {
+            return new NoSqlResource(data, resourceResolver, this);
+        }
+        else if (ROOT_PATH.equals(path)) {
+            // root path exists implicitly - bot not yet in nosql store - return a "virtual" resource until something is stored in it
+            NoSqlData rootData = new NoSqlData(ROOT_PATH, new HashMap<String, Object>());
+            return new NoSqlResource(rootData, resourceResolver, this);
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Iterator<Resource> listChildren(@NotNull ResolveContext resolveContext, @NotNull Resource resource) {
+        return listChildren(resource);
+    }
 }

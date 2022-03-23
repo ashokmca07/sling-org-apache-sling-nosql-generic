@@ -18,32 +18,38 @@
  */
 package org.apache.sling.nosql.generic.simple.provider;
 
-import java.util.Map;
-
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.api.resource.QueriableResourceProvider;
-import org.apache.sling.api.resource.ResourceProvider;
-import org.apache.sling.api.resource.ResourceProviderFactory;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.nosql.generic.adapter.NoSqlAdapter;
 import org.apache.sling.nosql.generic.resource.AbstractNoSqlResourceProviderFactory;
+import org.apache.sling.spi.resource.provider.ResolveContext;
+import org.apache.sling.spi.resource.provider.ResourceContext;
+import org.apache.sling.spi.resource.provider.ResourceProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.metatype.annotations.Designate;
+
+import java.util.Iterator;
 
 /**
  * Simple NoSQL resource provider factory based on {@link SimpleNoSqlAdapter} which just stores
  * the resource data in a hash map.
  */
-@Component(configurationFactory = true, policy = ConfigurationPolicy.REQUIRE, metatype = true)
-@Service(value = ResourceProviderFactory.class)
-@Properties({
-    @Property(name = ResourceProvider.ROOTS, value = ""),
-    @Property(name = QueriableResourceProvider.LANGUAGES, value = { "simple" })
-})
+@Component(
+        service = ResourceProvider.class,
+        configurationPolicy = ConfigurationPolicy.REQUIRE,
+        immediate = true,
+        property = {
+                ResourceProvider.PROPERTY_ROOT + "=",
+                QueriableResourceProvider.LANGUAGES + "=simple"
+        })
+@Designate(ocd = SimpleNoSqlResourceProviderFactory.class, factory = true)
 public class SimpleNoSqlResourceProviderFactory extends AbstractNoSqlResourceProviderFactory {
 
     @Reference
@@ -52,7 +58,7 @@ public class SimpleNoSqlResourceProviderFactory extends AbstractNoSqlResourcePro
     private NoSqlAdapter noSqlAdapter;
     
     @Activate
-    protected void activate(final Map<String, Object> props) {
+    protected void activate(BundleContext context) {
         noSqlAdapter = new SimpleNoSqlAdapter();
     }
     
@@ -65,7 +71,7 @@ public class SimpleNoSqlResourceProviderFactory extends AbstractNoSqlResourcePro
     protected EventAdmin getEventAdmin() {
         return eventAdmin;
     }
-    
+
     protected void bindEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
     }
@@ -74,4 +80,13 @@ public class SimpleNoSqlResourceProviderFactory extends AbstractNoSqlResourcePro
         this.eventAdmin = null;
     }
 
+    @Override
+    public @Nullable Resource getResource(@NotNull ResolveContext resolveContext, @NotNull String s, @NotNull ResourceContext resourceContext, @Nullable Resource resource) {
+        return null;
+    }
+
+    @Override
+    public @Nullable Iterator<Resource> listChildren(@NotNull ResolveContext resolveContext, @NotNull Resource resource) {
+        return null;
+    }
 }

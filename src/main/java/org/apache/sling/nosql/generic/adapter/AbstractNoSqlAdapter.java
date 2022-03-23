@@ -20,7 +20,7 @@ package org.apache.sling.nosql.generic.adapter;
 
 import java.util.Iterator;
 
-import aQute.bnd.annotation.ConsumerType;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Default implementation of {@link NoSqlAdapter}.

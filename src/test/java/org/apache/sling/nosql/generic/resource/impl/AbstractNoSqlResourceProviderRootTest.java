@@ -65,7 +65,7 @@ public abstract class AbstractNoSqlResourceProviderRootTest {
     
     @Test
     public void testRoot() {
-        Resource root = context.resourceResolver().getResource("/");
+        Resource root = context.resourceResolver().getResource("/nosql-simple");
         assertNotNull(root);
         assertTrue(root instanceof NoSqlResource);
     }

@@ -19,5 +19,7 @@
 /**
  * Generic NoSQL resource provider implementation.
  */
-@aQute.bnd.annotation.Version("1.0.0")
+@Version("2.0.0")
 package org.apache.sling.nosql.generic.resource;
+
+import org.osgi.annotation.versioning.Version;

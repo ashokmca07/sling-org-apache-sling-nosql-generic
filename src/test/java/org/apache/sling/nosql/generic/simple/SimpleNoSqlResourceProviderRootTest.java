@@ -18,22 +18,29 @@
  */
 package org.apache.sling.nosql.generic.simple;
 
-import org.apache.sling.api.resource.ResourceProvider;
+import org.apache.sling.spi.resource.provider.ResourceProvider;
 import org.apache.sling.nosql.generic.resource.impl.AbstractNoSqlResourceProviderRootTest;
 import org.apache.sling.nosql.generic.simple.provider.SimpleNoSqlResourceProviderFactory;
 
 import com.google.common.collect.ImmutableMap;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test basic ResourceResolver and ValueMap with different data types.
  */
 public class SimpleNoSqlResourceProviderRootTest extends AbstractNoSqlResourceProviderRootTest {
-    
+
     @Override
     protected void registerResourceProviderFactoryAsRoot() {
+        ResourceProvider<?> resourceProvider = mock(ResourceProvider.class);
+        context.registerService(ResourceProvider.class, resourceProvider,ResourceProvider.PROPERTY_ROOT, "/");
+
         context.registerInjectActivateService(new SimpleNoSqlResourceProviderFactory(), ImmutableMap.<String, Object>builder()
-                .put(ResourceProvider.ROOTS, "/")
+                .put(ResourceProvider.PROPERTY_ROOT, "/nosql-simple")
+                        .put("enabled", true)
                 .build());
     }
-
 }

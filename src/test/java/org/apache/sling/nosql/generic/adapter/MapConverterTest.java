@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
-import org.apache.sling.nosql.generic.adapter.MapConverter;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
